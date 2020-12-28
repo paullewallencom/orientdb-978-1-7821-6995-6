@@ -1,0 +1,40 @@
+﻿ rem Script derived from the OrientDB WIKI and adapted for the OrientDB Book
+ 
+ :: OrientDB Windows Service Installation
+ @echo off
+ rem Remove surrounding quotes from the first parameter
+ set str=%~1
+ rem Check JVM DLL location parameter
+ if "%str%" == "" goto missingJVM
+ set JVM_DLL=%str%
+ rem Remove surrounding quotes from the second parameter
+ set str=%~2
+ rem Check OrientDB Home location parameter
+ if "%str%" == "" goto missingOrientDBHome
+ set ORIENTDB_HOME=%str%
+ 
+rem Install service
+OrientDB.exe //IS --DisplayName="OrientDB" \
+ --Description="OrientDB Server" \
+ --StartClass=com.orientechnologies.orient.server.OServerMain --StopClass=com.orientechnologies.orient.server.OServerShutdownMain --Classpath="%ORIENTDB_HOME%\lib\*" \
+ --JvmOptions "-XX:+UseParallelGC;-XX:+AggressiveOpts;-XX:CompileThreshold=200;-Djava.util.logging.config.file="%ORIENTDB_HOME%\config\orientdb-server-log.properties";-Dorientdb.config.file="%ORIENTDB_HOME%\config\orientdb-server-config.xml";-Dorientdb.www.path="%ORIENTDB_HOME%\www";-Dlog.console.level=info;-Dlog.file.level=fine;-Dorientdb.build.number=@BUILD@;-DORIENTDB_HOME=%ORIENTDB_HOME%" \
+ --StartMode=jvm --StartPath="%ORIENTDB_HOME%\bin" --StopMode=jvm --StopPath="%ORIENTDB_HOME%\bin" --Jvm="%JVM_DLL%" --LogPath="%ORIENTDB_HOME%\log" --Startup=auto
+ 
+
+EXIT /B
+ 
+
+:missingJVM
+ echo Insert the JVM DLL location
+ goto printUsage
+ 
+
+:missingOrientDBHome
+ echo Insert the OrientDB Home
+ goto printUsage
+ 
+
+:printUsage
+ echo usage:
+ echo     installService JVM_DLL_location OrientDB_Home
+ EXIT /B
